@@ -6,10 +6,10 @@ import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { init, uninstall, block } from '../lib/index.js';
 
-const BIN = join(import.meta.dirname, '..', 'bin', 'woke-ify.js');
-const tmp = () => mkdtempSync(join(tmpdir(), 'woke-ify-'));
+const BIN = join(import.meta.dirname, '..', 'bin', 'wokify.js');
+const tmp = () => mkdtempSync(join(tmpdir(), 'wokify-'));
 const read = (dir, f) => readFileSync(join(dir, f), 'utf8');
-const count = (s) => s.split('woke-ify:start').length - 1;
+const count = (s) => s.split('wokify:start').length - 1;
 
 test('creates both files in an empty project', () => {
   const dir = tmp();
@@ -43,7 +43,7 @@ test('replaces an older block in place, keeping content after it', () => {
   const dir = tmp();
   writeFileSync(
     join(dir, 'AGENTS.md'),
-    '# Top\n\n<!-- woke-ify:start v0.0.1 -->\nold rules\n<!-- woke-ify:end -->\n\n## Bottom\n',
+    '# Top\n\n<!-- wokify:start v0.0.1 -->\nold rules\n<!-- wokify:end -->\n\n## Bottom\n',
   );
   const [, agents] = init({ dir });
   assert.equal(agents.status, 'updated');
