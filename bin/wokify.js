@@ -3,13 +3,13 @@ import { init, uninstall, RULES, VERSION } from '../lib/index.js';
 import { relative } from 'node:path';
 import { homedir } from 'node:os';
 
-const HELP = `woke-ify ${VERSION}
+const HELP = `wokify ${VERSION}
 Adds inclusive-language guidance to the context files Claude Code and Codex read.
 
 Usage
-  npx woke-ify init        Add or update the rules in ./CLAUDE.md and ./AGENTS.md
-  npx woke-ify uninstall   Remove the rules, leaving the rest of each file as it was
-  npx woke-ify print       Print the rules to the terminal
+  npx wokify init        Add or update the rules in ./CLAUDE.md and ./AGENTS.md
+  npx wokify uninstall   Remove the rules, leaving the rest of each file as it was
+  npx wokify print       Print the rules to the terminal
 
 Options
   --global       Use ~/.claude/CLAUDE.md and ~/.codex/AGENTS.md (every project)
@@ -45,7 +45,7 @@ function parse(argv) {
 }
 
 function fail(msg) {
-  console.error(`woke-ify: ${msg}\nRun "npx woke-ify --help" for usage.`);
+  console.error(`wokify: ${msg}\nRun "npx wokify --help" for usage.`);
   process.exit(1);
 }
 
@@ -70,14 +70,14 @@ switch (command) {
   case 'init':
   case 'install':
   case 'update': {
-    console.log(`woke-ify ${VERSION}: adding inclusive-language rules\n`);
+    console.log(`wokify ${VERSION}: adding inclusive-language rules\n`);
     report(init(opts), opts.dryRun);
     if (!opts.dryRun) console.log('\nDone. Claude Code and Codex pick up the rules in their next session.');
     break;
   }
   case 'uninstall':
   case 'remove': {
-    console.log(`woke-ify ${VERSION}: removing inclusive-language rules\n`);
+    console.log(`wokify ${VERSION}: removing inclusive-language rules\n`);
     report(uninstall(opts), opts.dryRun);
     break;
   }
