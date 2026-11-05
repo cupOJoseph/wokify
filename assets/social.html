@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; }
+  body {
+    background: #0f1115;
+    color: #f4f1ea;
+    font-family: -apple-system, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+    position: relative;
+    overflow: hidden;
+  }
+  .spectrum {
+    position: absolute; left: 0; right: 0; top: 0; height: 12px;
+    background: linear-gradient(90deg, #e5484d, #f76b15, #ffc53d, #46a758, #0090ff, #8e4ec6);
+  }
+  .glow {
+    position: absolute; right: -260px; top: -280px; width: 820px; height: 820px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(142, 78, 198, 0.20), rgba(0, 144, 255, 0.07) 45%, transparent 70%);
+  }
+
+  /* Left column */
+  .left { position: absolute; left: 64px; top: 58px; width: 580px; }
+  h1 { font-size: 96px; font-weight: 800; letter-spacing: -3.5px; line-height: 1; }
+  .tagline { margin-top: 14px; font-size: 30px; font-weight: 500; color: #b9b4aa; letter-spacing: -0.4px; line-height: 1.2; }
+  ul { list-style: none; margin-top: 30px; display: grid; gap: 14px; }
+  li { font-size: 21px; line-height: 1.35; color: #e4e0d8; display: flex; align-items: flex-start; gap: 14px; }
+  li .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; margin-top: 8px; }
+  .cmd {
+    position: absolute; left: 64px; bottom: 50px;
+    display: flex; align-items: center; gap: 16px;
+    background: #1b1e25; border: 1px solid #2c313b; border-radius: 14px;
+    padding: 16px 26px;
+    font-family: "SF Mono", Menlo, monospace; font-size: 30px;
+  }
+  .cmd .prompt { color: #46a758; font-weight: 700; }
+  .cmd .tool { color: #8a8f99; }
+  .works { position: absolute; right: 52px; bottom: 62px; font-size: 18px; color: #8a8f99; line-height: 1.45; text-align: right; }
+  .works b { color: #e4e0d8; font-weight: 600; }
+
+  /* Right column: before/after diagram */
+  .diagram { position: absolute; right: 52px; top: 50px; width: 476px; }
+  .card {
+    background: #171a20; border: 1px solid #2a2f38; border-radius: 14px;
+    padding: 16px 20px 18px;
+  }
+  .label {
+    font-family: "SF Mono", Menlo, monospace; font-size: 13px; font-weight: 600;
+    letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 9px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .before .label { color: #ff8a8d; }
+  .after .label { color: #6fcf86; }
+  .label .pill { width: 8px; height: 8px; border-radius: 50%; }
+  .before .pill { background: #e5484d; }
+  .after .pill { background: #46a758; }
+  .text { font-size: 16.5px; line-height: 1.5; color: #d6d2ca; }
+  .bad { color: #ffb3b5; background: rgba(229, 72, 77, 0.18); border-bottom: 2px solid #e5484d; padding: 0 2px; border-radius: 3px; }
+  .good { color: #b8f0c4; background: rgba(70, 167, 88, 0.18); border-bottom: 2px solid #46a758; padding: 0 2px; border-radius: 3px; }
+  .lint {
+    margin-top: 12px; padding-top: 11px; border-top: 1px dashed #343a45;
+    font-family: "SF Mono", Menlo, monospace; font-size: 12.5px; line-height: 1.65; color: #9aa0aa;
+    white-space: nowrap;
+  }
+  .lint .pos { color: #6b7280; }
+  .lint code { color: #ffb3b5; }
+  .lint .fix { color: #b8f0c4; }
+  .arrow {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    height: 46px; color: #8a8f99; font-size: 14px; font-family: "SF Mono", Menlo, monospace;
+  }
+  .arrow svg { display: block; }
+</style>
+</head>
+<body>
+  <div class="spectrum"></div>
+  <div class="glow"></div>
+
+  <div class="left">
+    <h1>wokify</h1>
+    <p class="tagline">Inclusive language for your<br>AI coding assistant.</p>
+    <ul>
+      <li><span class="dot" style="background:#ffc53d"></span><span>Adds inclusive-language guidance to CLAUDE.md and AGENTS.md</span></li>
+      <li><span class="dot" style="background:#46a758"></span><span>Agent-written code &amp; docs will use allowlist, main, and they/them pronouns in examples</span></li>
+      <li><span class="dot" style="background:#0090ff"></span><span>Custom linter catches insensitivity &amp; micro-aggressions across all agentic workflows with Alex.js</span></li>
+    </ul>
+  </div>
+
+  <div class="cmd"><span class="prompt">&gt;</span><span><span class="tool">npx</span> wokify init</span></div>
+  <div class="works">Works with<br><b>Claude Code</b> &amp; <b>Codex</b></div>
+
+  <div class="diagram">
+    <div class="card before">
+      <div class="label"><span class="pill"></span>Before</div>
+      <p class="text">The <span class="bad">boogeyman</span> wrote all changes to the <span class="bad">master</span> server, as <span class="bad">he</span> was tired of waiting for those buttheads in IT. Thus, the <span class="bad">slaves</span> were read-only copies of <span class="bad">master</span>.</p>
+      <div class="lint">
+        <div><span class="pos">1:5-1:14 </span> <code>boogeyman</code> → use <span class="fix">boogeymonster</span></div>
+        <div><span class="pos">1:42-1:48</span> <code>master</code> → use <span class="fix">primary</span>, <span class="fix">hub</span></div>
+        <div><span class="pos">1:62-1:64</span> <code>he</code> → use <span class="fix">they</span></div>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <svg width="22" height="30" viewBox="0 0 22 30" fill="none">
+        <path d="M11 2v24M3 18l8 8 8-8" stroke="#8a8f99" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      wokify
+    </div>
+
+    <div class="card after">
+      <div class="label"><span class="pill"></span>After</div>
+      <p class="text">The <span class="good">boogeymonster</span> wrote all changes to the <span class="good">primary</span> server, as <span class="good">they were</span> tired of waiting for those buttheads in IT. Thus, the <span class="good">replicas</span> were read-only copies of the <span class="good">primary</span>.</p>
+    </div>
+  </div>
+</body>
+</html>

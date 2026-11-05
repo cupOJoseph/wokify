@@ -1,27 +1,39 @@
 #!/usr/bin/env node
 import { init, uninstall, RULES, VERSION } from '../lib/index.js';
+import { lintPaths, runHook } from '../lib/lint.js';
 import { relative } from 'node:path';
 import { homedir } from 'node:os';
+import { readFileSync } from 'node:fs';
 
 const HELP = `wokify ${VERSION}
-Adds inclusive-language guidance to the context files Claude Code and Codex read.
+Inclusive language for Claude Code and Codex: guidance in CLAUDE.md and AGENTS.md,
+plus an Alex.js linter that checks what your agents write.
 
 Usage
-  npx wokify init        Add or update the rules in ./CLAUDE.md and ./AGENTS.md
-  npx wokify uninstall   Remove the rules, leaving the rest of each file as it was
-  npx wokify print       Print the rules to the terminal
+  npx wokify init            Add or update the rules in ./CLAUDE.md and ./AGENTS.md,
+                             and a Claude Code hook that lints every file it edits
+  npx wokify lint [paths]    Check files for insensitive wording (default: this folder)
+  npx wokify uninstall       Remove the rules and the hook, leaving everything else as it was
+  npx wokify print           Print the rules to the terminal
 
 Options
-  --global       Use ~/.claude/CLAUDE.md and ~/.codex/AGENTS.md (every project)
+  --global       Use ~/.claude and ~/.codex instead of this project (every project)
   --dir <path>   Use a different project folder (default: current folder)
-  --claude-only  Only touch CLAUDE.md
+  --claude-only  Only touch CLAUDE.md and the Claude Code hook
   --codex-only   Only touch AGENTS.md
+  --no-hook      Skip the Claude Code hook
   --dry-run      Show what would change without writing anything
   -h, --help     Show this help
-  -v, --version  Show the version`;
+  -v, --version  Show the version
+
+Linting
+  Uses Alex.js. Configure it with .alexrc or an "alex" field in package.json.
+  Add a wokify-ignore comment to a line to skip it, or wokify-ignore-next-line above it.
+  Exits with code 1 when it finds something, so it works in CI.`;
 
 function parse(argv) {
   const opts = { claude: true, codex: true };
+  const paths = [];
   let command;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -32,16 +44,19 @@ function parse(argv) {
     } else if (a.startsWith('--dir=')) opts.dir = a.slice(6);
     else if (a === '--claude-only') opts.codex = false;
     else if (a === '--codex-only') opts.claude = false;
+    else if (a === '--no-hook') opts.hook = false;
+    else if (a === '--hook') opts.hookMode = true;
     else if (a === '--dry-run') opts.dryRun = true;
     else if (a === '-h' || a === '--help') command = 'help';
     else if (a === '-v' || a === '--version') command = 'version';
     else if (a.startsWith('-')) fail(`Unknown option: ${a}`);
     else if (!command) command = a;
+    else if (command === 'lint') paths.push(a);
     else fail(`Unexpected argument: ${a}`);
   }
   if (!opts.claude && !opts.codex) fail('Pick one of --claude-only or --codex-only, not both');
   if (opts.global && opts.dir) fail('Use --global or --dir, not both');
-  return { command: command ?? 'help', opts };
+  return { command: command ?? 'help', opts, paths };
 }
 
 function fail(msg) {
@@ -64,7 +79,45 @@ function report(results, dryRun) {
   if (dryRun) console.log('\nDry run: nothing was written.');
 }
 
-const { command, opts } = parse(process.argv.slice(2));
+function lint(paths) {
+  let found;
+  try {
+    found = lintPaths(paths.length ? paths : ['.']);
+  } catch (err) {
+    fail(err.message);
+  }
+  const { results, checked } = found;
+  const total = results.reduce((n, r) => n + r.issues.length, 0);
+  for (const { file, issues } of results) {
+    console.log(show(file));
+    const width = Math.max(...issues.map((i) => `${i.line}:${i.column}`.length));
+    for (const i of issues) console.log(`  ${`${i.line}:${i.column}`.padEnd(width)}  ${i.message}`);
+    console.log('');
+  }
+  const files = (n) => `${n} ${n === 1 ? 'file' : 'files'}`;
+  if (total) {
+    console.log(`${total} ${total === 1 ? 'issue' : 'issues'} in ${files(results.length)} (checked ${files(checked)})`);
+    process.exitCode = 1;
+  } else {
+    console.log(`All clear: no insensitive wording in ${files(checked)}.`);
+  }
+}
+
+function hook() {
+  // Never block Claude because of a problem in wokify itself: any error exits quietly.
+  try {
+    const payload = JSON.parse(readFileSync(0, 'utf8'));
+    const feedback = runHook(payload);
+    if (feedback) {
+      process.stderr.write(`${feedback}\n`);
+      process.exitCode = 2; // exit code 2 shows the feedback to Claude
+    }
+  } catch {
+    process.exitCode = 0;
+  }
+}
+
+const { command, opts, paths } = parse(process.argv.slice(2));
 
 switch (command) {
   case 'init':
@@ -81,6 +134,11 @@ switch (command) {
     report(uninstall(opts), opts.dryRun);
     break;
   }
+  case 'lint':
+  case 'check':
+    if (opts.hookMode) hook();
+    else lint(paths);
+    break;
   case 'print':
     console.log(RULES);
     break;
