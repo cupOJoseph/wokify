@@ -1,0 +1,45 @@
+{
+  "name": "woke-ify",
+  "version": "0.1.0",
+  "description": "Adds inclusive-language guidance to the context files Claude Code (CLAUDE.md) and Codex (AGENTS.md) read.",
+  "type": "module",
+  "bin": {
+    "woke-ify": "bin/woke-ify.js"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./RULES.md": "./RULES.md"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "RULES.md"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "inclusive-language",
+    "inclusive",
+    "claude",
+    "claude-code",
+    "codex",
+    "agents-md",
+    "claude-md",
+    "ai",
+    "llm",
+    "context"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cupOJoseph/woke-ify.git"
+  },
+  "homepage": "https://github.com/cupOJoseph/woke-ify#readme",
+  "bugs": {
+    "url": "https://github.com/cupOJoseph/woke-ify/issues"
+  },
+  "license": "MIT"
+}
