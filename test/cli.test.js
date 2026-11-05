@@ -6,15 +6,15 @@ import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { init, uninstall, block } from '../lib/index.js';
 
-const BIN = join(import.meta.dirname, '..', 'bin', 'woke-ify.js');
-const tmp = () => mkdtempSync(join(tmpdir(), 'woke-ify-'));
+const BIN = join(import.meta.dirname, '..', 'bin', 'wokify.js');
+const tmp = () => mkdtempSync(join(tmpdir(), 'wokify-'));
 const read = (dir, f) => readFileSync(join(dir, f), 'utf8');
-const count = (s) => s.split('woke-ify:start').length - 1;
+const count = (s) => s.split('wokify:start').length - 1;
 
 test('creates both files in an empty project', () => {
   const dir = tmp();
   const r = init({ dir });
-  assert.deepEqual(r.map((x) => x.status), ['created', 'created']);
+  assert.deepEqual(r.map((x) => x.status), ['created', 'created', 'created']);
   assert.equal(read(dir, 'CLAUDE.md'), `${block()}\n`);
   assert.equal(read(dir, 'AGENTS.md'), `${block()}\n`);
 });
@@ -35,7 +35,7 @@ test('running init twice changes nothing', () => {
   init({ dir });
   const first = read(dir, 'AGENTS.md');
   const r = init({ dir });
-  assert.deepEqual(r.map((x) => x.status), ['unchanged', 'unchanged']);
+  assert.deepEqual(r.map((x) => x.status), ['unchanged', 'unchanged', 'unchanged']);
   assert.equal(read(dir, 'AGENTS.md'), first);
 });
 
@@ -43,7 +43,7 @@ test('replaces an older block in place, keeping content after it', () => {
   const dir = tmp();
   writeFileSync(
     join(dir, 'AGENTS.md'),
-    '# Top\n\n<!-- woke-ify:start v0.0.1 -->\nold rules\n<!-- woke-ify:end -->\n\n## Bottom\n',
+    '# Top\n\n<!-- wokify:start v0.0.1 -->\nold rules\n<!-- wokify:end -->\n\n## Bottom\n',
   );
   const [, agents] = init({ dir });
   assert.equal(agents.status, 'updated');
@@ -59,7 +59,7 @@ test('uninstall restores the original file and deletes files it created', () => 
   writeFileSync(join(dir, 'CLAUDE.md'), original);
   init({ dir });
   const r = uninstall({ dir });
-  assert.deepEqual(r.map((x) => x.status), ['removed', 'removed']);
+  assert.deepEqual(r.map((x) => x.status), ['removed', 'removed', 'removed']);
   assert.equal(read(dir, 'CLAUDE.md'), original);
   assert.ok(!existsSync(join(dir, 'AGENTS.md')));
 });
@@ -84,7 +84,7 @@ test('writes once when CLAUDE.md is a symlink to AGENTS.md', () => {
 test('dry run writes nothing', () => {
   const dir = tmp();
   const r = init({ dir, dryRun: true });
-  assert.deepEqual(r.map((x) => x.status), ['created', 'created']);
+  assert.deepEqual(r.map((x) => x.status), ['created', 'created', 'created']);
   assert.ok(!existsSync(join(dir, 'CLAUDE.md')));
 });
 

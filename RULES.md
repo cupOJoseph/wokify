@@ -9,6 +9,7 @@ Use inclusive, plain language in everything you write for this project: code ide
 - Leave names you don't own unchanged: third-party libraries, external APIs, quoted text, error messages you're matching, and git branches that already exist.
 - When editing code you're already changing, it's fine to update private names and comments in the lines you touch.
 - Use "they" for an unknown or generic person, such as "the user" or "the developer".
+- After changing files, run `npx -y wokify lint <the files you changed>` and reword what it flags in text you wrote. To keep a flagged name you don't own, add a `wokify-ignore` comment on that line. (In Claude Code, a hook runs this check after every edit.)
 
 **Preferred terms**
 
